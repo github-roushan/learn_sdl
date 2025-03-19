@@ -3,14 +3,32 @@
 
 int main(int argc, char *argv[])
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    if(SDL_Init(SDL_INIT_VIDEO) != 0){
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
     SDL_Window *window = SDL_CreateWindow(
         "Learning SDL", SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN
     );
+    
+    if(!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        // Clean UP  (just quit)
+        SDL_Quit();
+        return 1;
+    }
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    
+    if(!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        // Clean UP  (window and quit)
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
     SDL_SetRenderDrawColor(renderer, 255, 78, 37, 255);
 
@@ -32,7 +50,7 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
     }
 
-    // Clean UP
+    // Clean UP  (renderer, window and quit)
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
